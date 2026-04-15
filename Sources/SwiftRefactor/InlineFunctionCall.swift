@@ -84,8 +84,10 @@ private class ParameterSubstitutionRewriter: SyntaxRewriter {
 
   override func visit(_ node: DeclReferenceExprSyntax) -> ExprSyntax {
     if let replacement = map[node.baseName.text] {
-      return replacement
-    }
-    return super.visit(node)
+    return replacement
+      .with(\.leadingTrivia, node.leadingTrivia)
+      .with(\.trailingTrivia, node.trailingTrivia)
   }
+  return super.visit(node)
+}
 }

@@ -46,8 +46,9 @@ public struct InlineFunctionCall: SyntaxRefactoringProvider {
     let arguments = syntax.arguments
 
     for (param, arg) in zip(parameters, arguments) {
-      substitutionMap[param.firstName.text] = arg.expression
-    }
+  let paramName = param.secondName?.text ?? param.firstName.text
+  substitutionMap[paramName] = arg.expression
+}
 
     let rewriter = ParameterSubstitutionRewriter(map: substitutionMap)
 

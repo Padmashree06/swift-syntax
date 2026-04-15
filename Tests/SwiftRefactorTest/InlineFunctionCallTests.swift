@@ -71,6 +71,10 @@ final class InlineFunctionCallTests: XCTestCase {
         }
         """
     )
+     let result = try InlineFunctionCall.refactor(syntax: input, in: ())
+
+      print("===== ACTUAL =====")
+    print(result.description)
 
     let expected: ExprSyntax = "5 * 2"
 

@@ -71,10 +71,6 @@ final class InlineFunctionCallTests: XCTestCase {
         }
         """
     )
-     let result = try InlineFunctionCall.refactor(syntax: input, in: ())
-
-      print("===== ACTUAL =====")
-    print(result.description)
 
     let expected: ExprSyntax = "5 * 2"
 
@@ -98,10 +94,7 @@ final class InlineFunctionCallTests: XCTestCase {
         }
         """
     )
-    let result = try InlineFunctionCall.refactor(syntax: input, in: ())
 
-      print("===== ACTUAL =====")
-    print(result.description)
     let expected: ExprSyntax = "10 + 20"
 
     try assertRefactor(
@@ -130,9 +123,6 @@ final class InlineFunctionCallTests: XCTestCase {
 
     let result = try InlineFunctionCall.refactor(syntax: input, in: ())
 
-      print("===== ACTUAL =====")
-    print(result.description)
-
     XCTAssertTrue(result.description.contains("let y = 5 + 1"))
     XCTAssertTrue(result.description.contains("return y"))
     XCTAssertTrue(result.description.contains("()"))
@@ -153,8 +143,6 @@ final class InlineFunctionCallTests: XCTestCase {
 
     let result = try InlineFunctionCall.refactor(syntax: input, in: ())
 
-    print("===== ACTUAL =====")
-    print(result.description)
     XCTAssertTrue(result.description.contains("print(5)"))
     XCTAssertTrue(result.description.contains("()"))
   }
@@ -220,7 +208,7 @@ final class InlineFunctionCallTests: XCTestCase {
     )
   }
 
-  // MARK: - Failure Cases
+  // MARK: - Tests to log error
 
   func testFunctionNotFound() throws {
     let input = try functionCallExpr(

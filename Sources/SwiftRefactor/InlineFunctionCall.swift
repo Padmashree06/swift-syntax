@@ -13,42 +13,40 @@
 import SwiftSyntax
 
 public struct InlineFunctionCall: SyntaxRefactoringProvider {
-  // 1. Define the types exactly as the protocol expects
+
   public typealias Input = FunctionCallExprSyntax
   public typealias Output = Syntax
   public typealias Context = Void
 
-  // 2. Change 'refactor' to 'throws -> Output' (non-optional)
   public static func refactor(syntax: FunctionCallExprSyntax, in context: Void) throws -> Syntax {
 
-    // 3. Use the error type defined in your protocol for failures
     guard let calledExpr = syntax.calledExpression.as(DeclReferenceExprSyntax.self) else {
       throw RefactoringNotApplicableError("cursor must be on a function call")
     }
     let funcName = calledExpr.baseName.text
 
-    // 4. Find declaration
+    // Find declaration
     guard let root = syntax.root.as(SourceFileSyntax.self),
       let declaration = root.statements.compactMap({ $0.item.as(FunctionDeclSyntax.self) })
         .first(where: { $0.name.text == funcName })
     else {
-      throw RefactoringNotApplicableError("could not find function definition in this file")
+      throw RefactoringNotApplicableError("could not find function definition")
     }
 
-    // 5. Extract body
+    // Extract body of function
     guard let body = declaration.body else {
       throw RefactoringNotApplicableError("function has no body to inline")
     }
 
-    // 6. Substitution Logic
+    // Substitution logic
     var substitutionMap: [String: ExprSyntax] = [:]
     let parameters = declaration.signature.parameterClause.parameters
     let arguments = syntax.arguments
 
     for (param, arg) in zip(parameters, arguments) {
-  let paramName = param.secondName?.text ?? param.firstName.text
-  substitutionMap[paramName] = arg.expression
-}
+      let paramName = param.secondName?.text ?? param.firstName.text
+      substitutionMap[paramName] = arg.expression
+    }
 
     let rewriter = ParameterSubstitutionRewriter(map: substitutionMap)
 
@@ -84,10 +82,11 @@ private class ParameterSubstitutionRewriter: SyntaxRewriter {
 
   override func visit(_ node: DeclReferenceExprSyntax) -> ExprSyntax {
     if let replacement = map[node.baseName.text] {
-    return replacement
-      .with(\.leadingTrivia, node.leadingTrivia)
-      .with(\.trailingTrivia, node.trailingTrivia)
+      return
+        replacement
+        .with(\.leadingTrivia, node.leadingTrivia)
+        .with(\.trailingTrivia, node.trailingTrivia)
+    }
+    return super.visit(node)
   }
-  return super.visit(node)
-}
 }
